@@ -1,13 +1,15 @@
 import { OTPRepository } from "../../domain/ports/otpRepository";
 
-export class InMemoryOtpRepository implements OTPRepository {
-  private storage = new Map<string, { otp: string; expiresAt: Date }>();
+export class InMemoryOTPRepository implements OTPRepository {
+  private readonly store = new Map<string, { otp: string; expiresAt: Date }>();
 
   async saveOTP(userId: string, otp: string, expiresAt: Date): Promise<void> {
-    this.storage.set(userId, { otp, expiresAt });
+    this.store.set(userId, { otp, expiresAt });
   }
 
-  async getOTP(userId: string) {
-    return this.storage.get(userId) ?? null;
+  async getOTP(
+    userId: string
+  ): Promise<{ otp: string; expiresAt: Date } | null> {
+    return this.store.get(userId) ?? null;
   }
 }

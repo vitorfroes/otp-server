@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "API Rest to manage OPT tokens",
   "main": "index.js",
+  "type": "commonjs",
   "scripts": {
+    "dev": "ts-node src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -22,6 +24,12 @@
   },
   "homepage": "https://github.com/vitorfroes/otp-server#readme",
   "dependencies": {
-    "fastify": "^5.4.0"
+    "@fastify/swagger": "^9.5.1",
+    "fastify": "^5.4.0",
+    "otplib": "^12.0.1"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
   }
 }
