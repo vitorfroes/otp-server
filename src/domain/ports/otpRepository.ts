@@ -1,4 +1,4 @@
 export interface OTPRepository {
-  saveOtp: (userId: string, otp: string, expiresAt: Date) => Promise<void>;
-  getOtp: (userId: string) => Promise<{ otp: string; expiresAt: Date }>;
+  saveOTP: (userId: string, otp: string, expiresAt: Date) => Promise<void>;
+  getOTP: (userId: string) => Promise<{ otp: string; expiresAt: Date } | null>;
 }
