@@ -13,4 +13,12 @@ export class OTPService {
 
     return token;
   }
+
+  async validate(userId: string, token: string): Promise<boolean> {
+    const record = await this.otpRepository.getOTP(userId);
+    if (!record) return false;
+    if (record.expiresAt < new Date()) return false;
+
+    return record.otp === token;
+  }
 }

@@ -4,6 +4,7 @@ import { OTPService } from "./domain/services/otpService";
 import { otpRoutes } from "./infrastructure/web/otpController";
 import { InMemoryOTPRepository } from "./adapters/repository/inMemoryOtpRepository";
 import { GenerateOTP } from "./application/useCases/generateOtp";
+import { ValidateOTP } from "./application/useCases/validateOtp";
 
 async function start() {
   const fastify = Fastify({ logger: true });
@@ -44,15 +45,12 @@ async function start() {
     transformSpecificationClone: true,
   });
 
-  fastify.get("/", async (request, reply) => {
-    return { hello: "world" };
-  });
-
   const repository = new InMemoryOTPRepository();
   const otpService = new OTPService(repository);
   const generateOTP = new GenerateOTP(otpService);
+  const validateOTP = new ValidateOTP(otpService);
 
-  await otpRoutes(fastify, generateOTP);
+  await otpRoutes(fastify, generateOTP, validateOTP);
 
   await fastify.listen({ port: 3000 });
   fastify.log.info(`Server listening on http://localhost:3000`);
