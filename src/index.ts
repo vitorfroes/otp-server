@@ -2,9 +2,10 @@ import Fastify from "fastify";
 import path from "path";
 import { OTPService } from "./domain/services/otpService";
 import { otpRoutes } from "./infrastructure/web/otpController";
-import { InMemoryOTPRepository } from "./adapters/repository/inMemoryOtpRepository";
 import { GenerateOTP } from "./application/useCases/generateOtp";
 import { ValidateOTP } from "./application/useCases/validateOtp";
+import { MongoClient } from "mongodb";
+import { MongoOtpRepository } from "./adapters/repository/mongoOtpRepository";
 
 async function start() {
   const fastify = Fastify({ logger: true });
@@ -21,6 +22,11 @@ async function start() {
 
   fastify.register(require("@fastify/autoload"), {
     dir: path.join(__dirname, "infrastructure", "web"),
+  });
+
+  fastify.register(require("@fastify/mongodb"), {
+    forceClose: true,
+    url: "mongodb://localhost:27017/otp_db",
   });
 
   await fastify.register(import("@fastify/swagger-ui"), {
@@ -45,7 +51,14 @@ async function start() {
     transformSpecificationClone: true,
   });
 
-  const repository = new InMemoryOTPRepository();
+  const client = new MongoClient("mongodb://localhost:27017");
+  await client.connect();
+  const db = client.db("otp_db");
+  const collection = db.collection("otps");
+
+  await collection.createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+
+  const repository = new MongoOtpRepository(collection);
   const otpService = new OTPService(repository);
   const generateOTP = new GenerateOTP(otpService);
   const validateOTP = new ValidateOTP(otpService);
