@@ -8,6 +8,7 @@ import { MongoClient } from "mongodb";
 import { MongoOtpRepository } from "./adapters/repository/mongoOtpRepository";
 
 async function start() {
+  const mongoUrl = process.env.MONGO_URL || "mongodb://localhost:27017";
   const fastify = Fastify({ logger: true });
 
   await fastify.register(require("@fastify/swagger"), {
@@ -26,7 +27,7 @@ async function start() {
 
   fastify.register(require("@fastify/mongodb"), {
     forceClose: true,
-    url: "mongodb://localhost:27017/otp_db",
+    url: `${mongoUrl}/otp_db`,
   });
 
   await fastify.register(import("@fastify/swagger-ui"), {
@@ -51,7 +52,7 @@ async function start() {
     transformSpecificationClone: true,
   });
 
-  const client = new MongoClient("mongodb://localhost:27017");
+  const client = new MongoClient(mongoUrl);
   await client.connect();
   const db = client.db("otp_db");
   const collection = db.collection("otps");
@@ -65,7 +66,7 @@ async function start() {
 
   await otpRoutes(fastify, generateOTP, validateOTP);
 
-  await fastify.listen({ port: 3000 });
+  await fastify.listen({ port: 3000, host: "0.0.0.0" });
   fastify.log.info(`Server listening on http://localhost:3000`);
 
   await fastify.ready();

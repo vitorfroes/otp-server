@@ -1,4 +1,17 @@
 services:
+  app:
+    build: .
+    container_name: otp-app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongo
+    environment:
+      - MONGO_URL=mongodb://mongo:27017
+    volumes:
+      - .:/app
+      - /app/node_modules
+
   mongo:
     image: mongo:7
     container_name: mongo

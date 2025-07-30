@@ -1,2 +1,3 @@
 # otp-server
-OTP Server built in hexagonal archtecture
+
+OTP Server built in hexagonal architecture
