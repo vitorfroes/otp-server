@@ -1,7 +1,6 @@
 import { FastifyInstance } from "fastify";
 import { GenerateOTP } from "../../application/useCases/generateOtp";
 import { ValidateOTP } from "../../application/useCases/validateOtp";
-import { error } from "console";
 
 export const otpRoutes = async (
   fastify: FastifyInstance,
