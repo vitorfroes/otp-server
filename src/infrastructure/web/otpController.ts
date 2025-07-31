@@ -101,9 +101,7 @@ export const otpRoutes = async (
       try {
         const isValid = await validateOTP.execute({ userId, token });
 
-        if (isValid) {
-          return reply.status(200).send({ valid: true });
-        }
+        return reply.status(200).send({ valid: isValid });
       } catch (error) {
         request.log.error(error);
         return reply.status(500).send({ error: "Failed to validate OTP" });

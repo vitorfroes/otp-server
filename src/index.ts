@@ -9,7 +9,18 @@ import { MongoOtpRepository } from "./adapters/repository/mongoOtpRepository";
 
 async function start() {
   const mongoUrl = process.env.MONGO_URL || "mongodb://localhost:27017";
-  const fastify = Fastify({ logger: true });
+  const fastify = Fastify({
+    logger: {
+      level: "info",
+      transport: {
+        target: "pino-pretty",
+        options: {
+          colorize: true,
+          translateTime: "SYS:standard",
+        },
+      },
+    },
+  });
 
   await fastify.register(require("@fastify/swagger"), {
     swagger: {
@@ -61,8 +72,8 @@ async function start() {
 
   const repository = new MongoOtpRepository(collection);
   const otpService = new OTPService(repository);
-  const generateOTP = new GenerateOTP(otpService);
-  const validateOTP = new ValidateOTP(otpService);
+  const generateOTP = new GenerateOTP(otpService, fastify.log);
+  const validateOTP = new ValidateOTP(otpService, fastify.log);
 
   await otpRoutes(fastify, generateOTP, validateOTP);
 

@@ -7,7 +7,11 @@ export class OTPService {
   async generate(userId: string): Promise<string> {
     const secret = authenticator.generateSecret();
     const token = authenticator.generate(secret);
-    const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+    const expirationTime = parseInt(
+      process.env.OTP_EXPIRATION_TIME || "300",
+      10
+    );
+    const expiresAt = new Date(Date.now() + expirationTime * 1000);
 
     await this.otpRepository.saveOTP(userId, token, expiresAt);
 
