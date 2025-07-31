@@ -15,9 +15,9 @@ export const otpRoutes = async (
         body: {
           type: "object",
           properties: {
-            userId: { type: "string" },
+            email: { type: "string" },
           },
-          required: ["userId"],
+          required: ["email"],
         },
         response: {
           200: {
@@ -36,18 +36,13 @@ export const otpRoutes = async (
       },
     },
     async (request, reply) => {
-      const { userId } = request.body as { userId: string };
-      if (!userId) {
-        return reply.status(400).send({ error: "User ID is required" });
+      const { email } = request.body as { email: string };
+      if (!email) {
+        return reply.status(400).send({ error: "Email is required" });
       }
 
-      try {
-        const otp = await generateOTP.execute(userId);
-        return reply.status(200).send({ otp });
-      } catch (error) {
-        request.log.error(error);
-        return reply.status(500).send({ error: "Failed to generate OTP" });
-      }
+      const otp = await generateOTP.execute(email);
+      return reply.status(200).send({ otp });
     }
   );
 
@@ -60,9 +55,9 @@ export const otpRoutes = async (
           type: "object",
           properties: {
             token: { type: "string" },
-            userId: { type: "string" },
+            email: { type: "string" },
           },
-          required: ["token", "userId"],
+          required: ["token", "email"],
         },
         response: {
           200: {
@@ -81,31 +76,26 @@ export const otpRoutes = async (
       },
     },
     async (request, reply) => {
-      const { token, userId } = request.query as {
+      const { token, email } = request.query as {
         token: string;
-        userId: string;
+        email: string;
       };
       let errorMessage = [] as string[];
       if (!token) {
         errorMessage.push("Token is required");
       }
 
-      if (!userId) {
-        errorMessage.push("User ID is required");
+      if (!email) {
+        errorMessage.push("Email is required");
       }
 
       if (errorMessage.length > 0) {
         return reply.status(400).send({ error: errorMessage.join(", ") });
       }
 
-      try {
-        const isValid = await validateOTP.execute({ userId, token });
+      const isValid = await validateOTP.execute({ email, token });
 
-        return reply.status(200).send({ valid: isValid });
-      } catch (error) {
-        request.log.error(error);
-        return reply.status(500).send({ error: "Failed to validate OTP" });
-      }
+      return reply.status(200).send({ valid: isValid });
     }
   );
 };

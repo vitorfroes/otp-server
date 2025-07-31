@@ -6,6 +6,11 @@ import { GenerateOTP } from "./application/useCases/generateOtp";
 import { ValidateOTP } from "./application/useCases/validateOtp";
 import { MongoClient } from "mongodb";
 import { MongoOtpRepository } from "./adapters/repository/mongoOtpRepository";
+import dotenv from "dotenv";
+import { NodemailerService } from "./adapters/email/nodemailerService";
+import { AppError } from "./shared/error/appError";
+
+dotenv.config();
 
 async function start() {
   const mongoUrl = process.env.MONGO_URL || "mongodb://localhost:27017";
@@ -63,6 +68,16 @@ async function start() {
     transformSpecificationClone: true,
   });
 
+  fastify.setErrorHandler((error, request, reply) => {
+    if (error instanceof AppError) {
+      reply.status(error.statusCode).send({ error: error.message });
+    } else {
+      request.log.error(error);
+      reply.status(500).send({ error: "Internal Server Error" });
+    }
+  });
+
+  // MongoDB Client setup
   const client = new MongoClient(mongoUrl);
   await client.connect();
   const db = client.db("otp_db");
@@ -71,7 +86,8 @@ async function start() {
   await collection.createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
   const repository = new MongoOtpRepository(collection);
-  const otpService = new OTPService(repository);
+  const emailService = new NodemailerService();
+  const otpService = new OTPService(repository, emailService);
   const generateOTP = new GenerateOTP(otpService, fastify.log);
   const validateOTP = new ValidateOTP(otpService, fastify.log);
 

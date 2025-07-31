@@ -7,8 +7,8 @@ export class GenerateOTP {
     private readonly logger: FastifyBaseLogger
   ) {}
 
-  async execute(userId: string): Promise<string> {
-    this.logger.info(`Generating OTP for user: ${userId}`);
-    return this.otpService.generate(userId);
+  async execute(email: string): Promise<string> {
+    this.logger.info(`Generating OTP for user: ${email}`);
+    return this.otpService.generate(email);
   }
 }

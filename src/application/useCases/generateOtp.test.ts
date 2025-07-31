@@ -20,17 +20,17 @@ describe("Generate OTP useCase", () => {
   });
 
   it("should generate an OTP for a user", async () => {
-    const userId = "user-test";
+    const email = "user@mail.com";
     const expectedOtp = "123456";
 
     (mockOTPService.generate as jest.Mock).mockResolvedValue(expectedOtp);
 
-    const otp = await generateOTP.execute(userId);
+    const otp = await generateOTP.execute(email);
 
     expect(mockLogger.info).toHaveBeenCalledWith(
-      `Generating OTP for user: ${userId}`
+      `Generating OTP for user: ${email}`
     );
     expect(otp).toBe(expectedOtp);
-    expect(mockOTPService.generate).toHaveBeenCalledWith(userId);
+    expect(mockOTPService.generate).toHaveBeenCalledWith(email);
   });
 });

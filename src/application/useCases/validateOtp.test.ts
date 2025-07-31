@@ -20,17 +20,17 @@ describe("Validate OTP useCase", () => {
   });
 
   it("should validate an OTP for a user", async () => {
-    const userId = "user-test";
+    const email = "user@mail.com";
     const token = "123456";
 
     (mockOTPService.validate as jest.Mock).mockResolvedValue(true);
 
-    const isValid = await validateOTP.execute({ userId, token });
+    const isValid = await validateOTP.execute({ email, token });
 
     expect(mockLogger.info).toHaveBeenCalledWith(
-      `Validating OTP token: ${token} for user: ${userId}`
+      `Validating OTP token: ${token} for user email: ${email}`
     );
     expect(isValid).toBe(true);
-    expect(mockOTPService.validate).toHaveBeenCalledWith(userId, token);
+    expect(mockOTPService.validate).toHaveBeenCalledWith(email, token);
   });
 });

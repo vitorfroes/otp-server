@@ -23,6 +23,7 @@ docker compose up --build
 - API: http://localhost:3000
 - Swagger: http://localhost:3000/documentation
 - Mongo Express: http://localhost:8081
+- Email Service (Mailpit): http://localhost:8025
 
 ### Endpoints
 

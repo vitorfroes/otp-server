@@ -4,18 +4,18 @@ import { OTPRepository } from "../../domain/ports/otpRepository";
 export class MongoOtpRepository implements OTPRepository {
   constructor(private readonly collection: Collection) {}
 
-  async saveOTP(userId: string, otp: string, expiresAt: Date): Promise<void> {
+  async saveOTP(email: string, otp: string, expiresAt: Date): Promise<void> {
     await this.collection.updateOne(
-      { userId },
+      { email },
       { $set: { otp, expiresAt } },
       { upsert: true }
     );
   }
 
   async getOTP(
-    userId: string
+    email: string
   ): Promise<{ otp: string; expiresAt: Date } | null> {
-    const record = await this.collection.findOne({ userId });
+    const record = await this.collection.findOne({ email });
     if (!record) return null;
     return {
       otp: record.otp,

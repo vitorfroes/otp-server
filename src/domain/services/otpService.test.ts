@@ -1,25 +1,30 @@
+import { EmailService } from "../ports/emailService";
 import { OTPRepository } from "../ports/otpRepository";
 import { OTPService } from "./otpService";
 
 describe("OTP Service", () => {
   let otpService: OTPService;
   let mockRepository: OTPRepository;
+  let mockEmailService: EmailService;
+  const userMail = "user@mail.com";
 
   beforeEach(() => {
     mockRepository = {
       saveOTP: jest.fn(),
       getOTP: jest.fn(),
     };
-    otpService = new OTPService(mockRepository);
+    mockEmailService = {
+      sendEmail: jest.fn(),
+    };
+    otpService = new OTPService(mockRepository, mockEmailService);
   });
 
   it("should generate an OTP token and save it", async () => {
-    const userId = "user-test";
-    const otp = await otpService.generate(userId);
+    const otp = await otpService.generate(userMail);
 
     expect(otp).toHaveLength(6);
     expect(mockRepository.saveOTP).toHaveBeenCalledWith(
-      userId,
+      userMail,
       expect.any(String),
       expect.any(Date)
     );
@@ -31,14 +36,14 @@ describe("OTP Service", () => {
       expiresAt: new Date(Date.now() + 300 * 1000),
     });
 
-    const result = await otpService.validate("user-test", "123456");
+    const result = await otpService.validate("user@mail.com", "123456");
     expect(result).toBe(true);
   });
 
   it("should return invalid when token is not found", async () => {
     (mockRepository.getOTP as jest.Mock).mockResolvedValue(null);
 
-    const result = await otpService.validate("user-test", "123456");
+    const result = await otpService.validate("user@mail.com", "123456");
     expect(result).toBe(false);
   });
 
@@ -49,7 +54,7 @@ describe("OTP Service", () => {
       expiresAt: expiredDate,
     });
 
-    const result = await otpService.validate("user-test", "123456");
+    const result = await otpService.validate("user@mail.com", "123456");
     expect(result).toBe(false);
   });
 
@@ -59,7 +64,13 @@ describe("OTP Service", () => {
       expiresAt: new Date(Date.now() + 300 * 1000),
     });
 
-    const result = await otpService.validate("user-test", "123456");
+    const result = await otpService.validate("user@mail.com", "123456");
     expect(result).toBe(false);
+  });
+
+  it("should throw an error for invalid email format", async () => {
+    await expect(otpService.generate("invalid-email")).rejects.toThrow(
+      "Invalid email address"
+    );
   });
 });
