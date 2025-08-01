@@ -43,8 +43,9 @@ describe("OTP Service", () => {
   it("should return invalid when token is not found", async () => {
     (mockRepository.getOTP as jest.Mock).mockResolvedValue(null);
 
-    const result = await otpService.validate("user@mail.com", "123456");
-    expect(result).toBe(false);
+    await expect(otpService.validate(userMail, "123456")).rejects.toThrow(
+      "OTP not found for the email provided"
+    );
   });
 
   it("should return invalid when token is expired", async () => {
