@@ -9,6 +9,7 @@ REST API application to manage OTP (One-Time Password) tokens, providing endpoin
 - Typescript
 - MongoDB
 - Docker
+- Mailpit
 
 ## Installation
 
@@ -16,6 +17,12 @@ Use docker to compose the application.
 
 ```bash
 docker compose up --build
+```
+
+## Unit tests
+
+```bash
+npm test
 ```
 
 ### Usage
